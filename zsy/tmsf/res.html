@@ -1,0 +1,2401 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>杭州二手房房源_杭州二手房_透明售房网</title>
+		<meta name="keywords" content="杭州二手房，杭州二手房买卖，杭州二手房出售，杭州二手房价格，杭州二手房信息" />
+		<meta name="description"
+			content="杭州二手房房源，杭州口碑的杭州二手房买卖、杭州二手房出售网站，提供杭州二手房房源、杭州二手房价格走势、杭州二手房户型图等交易信息。" />
+		<link href="/hzweb/esf/css/esfpublic.css" rel="stylesheet" type="text/css" />
+		<link href="/hzweb/esf/css/index.css" rel="stylesheet" type="text/css" />
+		<link href="/hzweb/esf/css/esflist.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="/js/jquery-1.7.2.min.js"></script>
+		<script type="text/javascript" src="/hzweb/esf/js/jquery.SuperSlide.2.1.1.js"></script>
+		<script type="text/javascript" src="/hzweb/esf/js/point.js"></script>
+		<script type="text/javascript" src="/js/jquery.autocomplete.js"></script>
+		<script type="text/javascript" src="/hzweb/esf/js/esfsearch.js"></script>
+		<script type="text/javascript" src="/esf/js/jquery.cookie.js"></script>
+		<script type="text/javascript" src="/hzweb/esf/js/esfbrowsehouse.js"></script>
+		
+		<script type="text/javascript">
+		
+			var communityids='';
+		
+			$(document).ready(function() {
+				doAutoCommunity();
+				showCommunityInfo();
+				showSchoolInfo();
+				//获得小区专家列表
+				loadSpecialList();
+				//获得房源对比信息
+				if($.cookie('ESFN_RENT_HOUSE_VS')!=''&&$.cookie('ESFN_RENT_HOUSE_VS')!=null){
+					loadRentHouseVs();
+				}
+			});
+			
+			//设置搜索栏状态
+			function initPageState(){
+				if($.cookie('offpage') == "1"){
+					$('.pagebtn').css('display','none');
+				}
+				
+				if($('#lookafter li').length >= 1){
+					$('#cookiehouse').css('display', 'block');
+				}else{
+					$('#cookiehouse').css('display', 'none');
+				}
+				if($('#imgcount').val() != ''){
+					$('#imgid').attr('checked',true);
+				}
+				
+				if('' != ''){
+					$('#searchall #searchkey').val('');
+				}
+
+				var flag1=0;
+				var flag2=0;
+				$('#price_p a').each(function(){
+					var pp = this.id.substring(6);
+					if(pp == $('#pr').val() && $('#pr').val() != ''){
+						$('#minprice').val('');
+						$('#maxprice').val('');
+						flag1 = 1;
+					}
+				});
+
+				$('#area_p a').each(function(){
+					var aa = this.id.substring(5);
+					if(aa == $('#area').val()){
+						$('#minarea').val('');
+						$('#maxarea').val('');
+						flag2 = 1;
+					}
+				});
+
+				if($('#aid').val() != ''){
+					if($('#aid').val().length == 6){
+						showItem($('#aid').val());
+					}else{
+						showItem($('#' + $('#aid').val()).attr('pid'));
+						$('#p_' + $('#' + $('#aid').val()).attr('pid')).removeClass('onhover');
+						$('#' + $('#aid').val()).addClass('onhover');
+					}
+				}
+
+				if($('#ro').val() != ''){
+					$('#room_p a').removeClass('onhover');
+					$('#room_' + $('#ro').val()).addClass('onhover');
+				}
+
+				if($('#pr').val() != '' && flag1 == 1){
+					$('#price_p a').removeClass('onhover');
+					$('#price_' + $('#pr').val()).addClass('onhover');
+				}
+				
+				if($('#pr').val() != '' && flag1 == 0){
+					if($('#pr').val().split('_')[0] != 0){
+						$('#minprice').val($('#pr').val().split('_')[0]);
+					}
+					if($('#pr').val().split('_')[1] != 9999999){
+						$('#maxprice').val($('#pr').val().split('_')[1]);
+					}
+					$('#price_p a').removeClass('onhover');
+				}
+
+				if($('#area').val() != '' && flag2 == 1){
+					$('#area_p a').removeClass('onhover');
+					$('#area_' + $('#area').val()).addClass('onhover');
+				}
+				if($('#area').val() != '' && flag2 == 0){
+					if($('#area').val().split('_')[0] != 0){
+						$('#minarea').val($('#area').val().split('_')[0]);
+					}
+					if($('#area').val().split('_')[1] != 999999){
+						$('#maxarea').val($('#area').val().split('_')[1]);
+					}
+					$('#area_p a').removeClass('onhover');
+				}
+
+				if($('#sour').val() != ''){
+					$('#source_p a').removeClass('onhover');
+					$('#source_' + $('#sour').val()).addClass('onhover');
+				}
+
+				if($('#hire').val() != ''){
+					$('#hire_p a').removeClass('onhover');
+					$('#hire_' + $('#hire').val()).addClass('onhover');
+				}
+				if('' != ''){
+					$("#intime_name").html($("#").html());
+				}
+				if('' != ''){
+					$("#ordertype_name").html($("#").html());
+				}
+			}
+			
+			
+
+			function showSchoolInfo(){
+				if($('#schoolid').val() != ''){
+					$.ajax({
+						url:'/esfn/EsfnSearch_getSchoolInfo.jspx?schoolid=' + $('#schoolid').val(),
+						type: 'get', dataType:'html', cache: false, async:false,
+						success: function(data){
+							var s = eval('(' + data + ')');
+							var r = s.sinfo;
+							var str = '';
+							$('.xqdetail').html('');
+							str += '<ul>' +
+											'<a href="" class="orange1 ft14">' + r.schoolname + '</a>';
+											if(r.gradetype == 1){
+												str += '<font class="ash3">[普通]</font></ul>';
+											}
+											if(r.gradetype == 2){
+												str += '<font class="ash3">[重点]</font></ul>';
+											}				
+											str += '<ul>' + r.schooladdr +
+														'<span>|</span>学校电话：' + r.schooltel +
+														'<span>|</span>划分小区(<a href="" class="orange1">' + r.housecount +
+														'个</a>)' +
+													'</ul>';
+							$('.xqdetail').append(str);
+						}
+					});
+				}
+				if($('.xqdetail').html().length > 1){
+					$('.xqdetail').css('display', 'block');
+				}
+			}
+
+			//获得小区专家
+			function loadSpecialList(){
+				$.ajax({
+					url:'/esfn/EsfnSearch_loadSpecialList.jspx?communityids='+communityids+"&aid="+$('#aid').val(),
+					type: 'get', dataType:'html', cache: false, async:false,
+					error: function(xhr){
+						showAlertPopup("系统错误，请重新登陆");
+					},
+					success: function(data){
+						var r = eval('(' + data + ')');
+						if(r.flag){
+							$('#show_specialList').html('');
+							$('#show_specialList').show();
+							var list = r.list;
+							var sp_str='';
+							for(i in list){
+								sp_str+=setSpecialHtml(list[i]);
+							}
+							$('#show_specialList').html(sp_str);
+						}
+						else{
+							$('#show_specialList').show();
+						}
+					}
+				});
+			}
+			
+			//根据获得的小区专家实体返回拼接好的字符串
+			function setSpecialHtml(special){
+				var sp_html="";
+				sp_html+='<li style="height:83px;">';
+				sp_html+='<a href="/esf/jjr_'+special.brokerid+'.htm" target="_blank">';
+				sp_html+='<img src='+(special.headimage).replace('=', '_80x90')+'"/" alt="'+special.realname+'" title="'+special.realname+'" width="54" height="54" class="boder3">';
+				sp_html+='</a>';
+				sp_html+='<p>';
+				sp_html+='<a href="/esf/jjr_'+special.brokerid+'.htm" target="_blank" class="blue1 line22">'+special.realname+'</a>';
+				sp_html+='</p>';
+				sp_html+='<p>服务区域：'+special.areaname+'</p>';
+				sp_html+='<p>主营小区：<font class="ash3">'+(special.communitys).replace(',', '/')+'</font></p>';
+				sp_html+='</li>';
+				return sp_html;
+			}
+			
+			
+			function showCommunityInfo(){
+				if('' != ''){
+					$.ajax({
+						url:'/esfn/EsfnSearch_getCommunityInfo.jspx?keywords=' + '',
+						type: 'get', dataType:'html', cache: false, async:false,
+						success: function(data){
+							var r = eval('(' + data + ')');
+							var c = r.list;
+							var str = '';
+							if(r.flag == 1){//小区详情
+								for (i in c)
+								communityids+= c[i].communityid;
+								str += '<ul>' + 
+											'<a href="/esf/xq_index_'+ c[i].communityid +'.htm" target="_blank" class="orange1 ft14">' + c[i].communityname + '</a>' + 
+											'<font class="ash3">[' + c[i].areaname + ']</font>' +
+										'</ul>' +
+										'<ul>近月均价：' + c[i].signprice + '元/㎡' +
+										'<span>|</span>同比上月：';
+								if(c[i].ssyprice != 0){
+									if(c[i].syprice > c[i].ssyprice){
+										if(Math.floor((c[i].syprice-c[i].ssyprice)*100/c[i].ssyprice) == 0){
+											str += '--';
+										}else{
+											str += '<span class="orange1 marginn">↑</span>' + Math.floor((c[i].syprice-c[i].ssyprice)*100/c[i].ssyprice) + '%';
+										}
+									}
+									else if(c[i].syprice == c[i].ssyprice){
+										str += '--';
+									}
+									else{
+										if(Math.floor(-(c[i].syprice-c[i].ssyprice)*100/c[i].ssyprice) == 0){
+											str += '--';
+										}else{
+											str += '<span class="orange1 marginn">↓</span>' + Math.floor(-(c[i].syprice-c[i].ssyprice)*100/c[i].ssyprice) + '%';
+										}
+									}
+								}else{
+									str += '--'
+								}
+								
+								str += '<span>|</span>出售房源：<font class="orange1 marginn">' + c[i].cscount + '</font>套' +
+											'<span>|</span>出租房源：<font class="orange1 marginn">' + c[i].czcount + '</font>套' ;
+								var splist = c[i].specialist.split(",");
+								if(splist.length > 0 && splist != ''){
+									str +=  '<span>|</span>小区专家：';
+									for(var i; i < splist.length; i++){
+										if(i == splist.length-1){
+											str += '<a href="/esf/jjr_'+ splist[i].split("|")[0] +'.htm" target="_blank" class="blue1">' +splist[i].split("|")[1] + '</a>';
+										}else{
+											str += '<a href="/esf/jjr_'+ splist[i].split("|")[0] +'.htm" target="_blank" class="blue1">' + splist[i].split("|")[1] + '</a>、';
+										}
+									}
+								}
+								str += '</ul>';
+							}
+							if(r.flag == 2){//所关联的多个小区
+								if(c.length > 0){
+									str += '相关小区：'
+									for(i in c){
+										communityids+= c[i].communityid;
+										if(i == (c.length - 1)){
+											str += '<a href="/esf/xq_index_'+ c[i].communityid +'.htm" target="_blank" class="blue1">' + c[i].communityname + '</a>';
+										}else{
+											str += '<a href="/esf/xq_index_'+ c[i].communityid +'.htm" target="_blank" class="blue1">' + c[i].communityname + '</a> | ';
+										}
+									}
+								}
+							}
+							$('.xqdetail').append(str);
+						}
+					});
+				}
+				if($('.xqdetail').html().length > 1){
+					$('.xqdetail').css('display', 'block');
+				}
+			}
+
+			function doCusPrice(){
+				if($('#minprice').val() != '' && $('#maxprice').val() != ''){
+					$('#pr').val($('#minprice').val() + '_' + $('#maxprice').val());
+					doPrice($('#pr').val());
+				}
+				else if($('#minprice').val() == '' && $('#maxprice').val() != ''){
+					$('#pr').val('0_' + $('#maxprice').val());
+					doPrice($('#pr').val());
+				}
+				else if($('#minprice').val() != '' && $('#maxprice').val() == ''){
+					$('#pr').val($('#minprice').val() + '_9999999');
+					doPrice($('#pr').val());
+				}
+				else{
+					$('#pricebottom').css('display', 'none');
+				}
+			}
+
+			function doCusArea(){
+				if($('#minarea').val() != '' && $('#maxarea').val() != ''){
+					$('#area').val($('#minarea').val() + '_' + $('#maxarea').val());
+					doAreaValue($('#area').val());
+				}
+				else if($('#minarea').val() == '' && $('#maxarea').val() != ''){
+					$('#area').val('0_' + $('#maxarea').val());
+					doAreaValue($('#area').val());
+				}
+				else if($('#minarea').val() != '' && $('#maxarea').val() == ''){
+					$('#area').val($('#minarea').val() + '_999999');
+					doAreaValue($('#area').val());
+				}
+				else{
+					$('#areabottom').css('display', 'none');
+				}
+			}
+			
+			function toSwitch(a) {
+				if (a == '') {
+					$('#sw').val('');
+				} else {
+					$('#sw').val(a);
+				}
+				$('#esfnsearch').submit();
+			}
+			
+			//时间段和排序选择下拉框
+			$(function(){
+				$(".selectn,.select").each(function(){
+					var s=$(this);
+					var z=parseInt(s.css("z-index"));
+					var dt=$(this).children("dt");
+					var dd=$(this).children("dd");
+					var _show=function(){dd.slideDown(200);dt.addClass("cur");s.css("z-index",z+1);};   //展开效果
+					var _hide=function(){dd.slideUp(200);dt.removeClass("cur");s.css("z-index",z);};    //关闭效果
+					dt.click(function(){dd.is(":hidden")?_show():_hide();});
+					dd.find("li").click(function(){//选择效果（如需要传值，可自定义参数，在此处返回对应的“value”值 ）
+						dt.html($(this).html());
+						_hide();
+						setSelecttnValue($(this).attr("id"));
+						$('#esfnsearch').submit();
+					});
+					$("body").click(function(i){ !$(i.target).parents(".selectn,.select").first().is(s) ? _hide():"";});
+				})
+			})
+			
+			//选择栏数值
+			function setSelecttnValue(id){
+				if(id.indexOf("type")>0){
+					if(id.indexOf("reset")>0){
+						$("#ordertype").val("");
+					}
+					else{
+						$("#ordertype").val(id);
+					}
+				}
+				else{
+					if(id.indexOf("reset")>0){
+						$("#intime").val("");
+					}
+					else{
+						$("#intime").val(id);
+					}
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div class="page_topbar">
+	<div class="pagebar_main">
+		<div class="login">
+			
+			<span id="mem_enter_info"></span>
+		</div>
+		<div class="subsite">
+			<a href="/">网站首页</a> |
+			<a href="/hzweb/newhouse/" target="_blank" >新房</a> |
+			<a href="http://www.howzf.com/" target="_blank">二手房</a> |
+			<a href="/hzweb/info/" target="_blank">资讯</a> <a href="/hzweb/info/indexcreate.jsp" target="_blank">原创</a> <a href="/hzweb/info/specialIndex.jsp" target="_blank">专题</a> |
+			<a href="/hzweb/cityarea/" target="_blank">城区板块</a> |
+			<a href="/hzweb/housetype/" target="_blank">房屋类别</a> |
+			<a href="/info/search_338_33.htm" target="_blank">透明点评</a> |
+			<a href="/info/tools_33.htm" target="_blank">购房工具</a> |
+			<a href="http://map.tmsf.com/map.html?locationtype=city&locationid=33" target="_blank">地图</a>
+			
+		</div>
+	</div>
+</div>
+<script type=text/javascript src="/js/jquery.cookie.js"></script>
+<script type="text/javascript">
+	function isITBEnter(){
+		$('#mem_enter_info').html('');
+		$.ajax({
+			url:'/mem/WebMemLoginAction_isEnter.jspx?logintoken='+$.cookie('hzfc365_login_token'),
+			type: 'get', dataType:'html', cache: false, async:false,
+			error: function(xhr){
+				showAlertPopup("系统错误，请重新登陆");
+			},
+			success: function(data){
+				var mem = eval('(' + data + ')');
+				if(mem.flag==false){
+					$('#mem_enter_info').append('您好，欢迎来到透明售房网！ [<a href="/mem/login.jsp" target="_blank">请登录</a>][<a href="/mem/register/" target="_blank">免费注册</a>]');
+				}
+				else{
+					var showName = (mem.niname==''? mem.username:mem.niname);//如果有昵称就优先显示昵称
+					$('#mem_enter_info').append('您好  <a href="/mem/main.htm"  target="_blank" >'+showName+'</a>，欢迎来到透明售房网！[<a href="/mem/main.htm" target="_blank">会员中心</a>] [<a href="javaScript:toITBExit();">退出</a>]');
+					if(typeof(loginflag) != 'undefined') {
+						loginflag = true;
+					}
+				}
+			}
+		});
+	}
+	
+	
+	
+	//会员退出
+	function toITBExit(){
+		$.cookie('istiped', '', {expires: 1,path: '/'});//重置是否看到提醒信息
+		$.ajax({
+			url:'/mem/WebMemLoginAction_toExit.jspx',
+			type: 'get', dataType:'html', cache: false, async:false,
+			error: function(xhr){
+			},
+			success: function(data){
+				$.cookie('hzfc365_login_token', null);
+				isITBEnter();
+			}
+		});
+	
+	}
+	
+	isITBEnter();
+</script>
+
+
+		<!--全屏广告开始-->
+<div class="gg_full wrapfix">
+    <div class=gg_fbtn><a style="display:none;" class=gg_freplay title=重播 href="#"></a><a class=gg_fclose title=关闭 href="#"></a></div>
+    </div>
+<div class="h10"></div>
+<div class="header">
+	<div class="logochild">
+		<div class="logo">
+			<a href="http://www.howzf.com/"><img src="/hzweb/esf/images/logo.jpg" />
+			</a>
+		</div>
+		<div class="child">
+			二手房
+		</div>
+		<div class="childlink">主站<div class="childsite" id="zy03" style="display: none;"><p><a href="/hzweb/esf/">主站</a></p><p><a href="/yhweb/esf/">余杭</a></p></div></div>
+		<script type="text/javascript" >
+			$(".childlink").hover(
+				function(){$(this).find(".childsite").css("display","block");},
+				function(){$(this).find(".childsite").css("display","none");}
+			);
+		</script>
+	</div>
+	<div class="searcher">
+	<form action="/esfn/EsfnSearch_csnew.jspx" method="get" id="searchall" name="searchall">
+		<div class="search">
+			<div class="searchkey">
+				<div onmouseout="closedselecttype();" style="float: left; position: relative;">
+					<a href="javascript:doselecttype();" id="nowselect" style="display:block" class="seachtype" onmouseover="doselecttype();">出售</a>
+					<ul class="selecttypes" onmouseover="doselecttype();">
+						<li onmouseover="doselecttype();">
+							<a href="javascript:onselecttype('出售',1)">出售</a>
+						</li>
+						<li onmouseover="doselecttype();">
+							<a href="javascript:onselecttype('出租',2)">出租</a>
+						</li>
+						<li onmouseover="doselecttype();">
+							<a href="javascript:onselecttype('小区',3)">小区</a>
+						</li>
+						<li onmouseover="doselecttype();">
+							<a href="javascript:onselecttype('中介',4)">中介</a>
+						</li>
+					</ul>
+				</div>
+				<input type="text" name="searchkey" id="searchkey" value="请输入房源特征、小区名..." onblur="keyblur();" onfocus="keyfocus();" onkeydown="javascript:if(event.keyCode==13) {dokeysearch(); return false;}" />
+				<input type="hidden"  id="keywords" name="keywords" value="">
+			</div>
+			<div class="searchsub">
+				<input type="button" id="searchsub" onclick="javascript:dokeysearch();" style="cursor:pointer"/>
+			</div>
+		</div>
+	</form>	
+		
+		
+		<div class="searchword">
+			热门小区：
+    					<a href="http://www.howzf.com/esf/xq_index_10000328.htm" target="_blank">稻香园</a>
+    					<a href="http://www.howzf.com/esf/xq_index_10001782.htm" target="_blank">艮园</a>
+    					<a href="http://www.howzf.com/esf/xq_index_10003060.htm" target="_blank">南班巷小区</a>
+    					<a href="http://www.howzf.com/esf/xq_index_10004141.htm" target="_blank">欣盛东方郡</a>
+    					<a href="http://www.howzf.com/esf/xq_index_20000243.htm" target="_blank">保利东湾</a>
+		</div>
+	</div>
+</div>
+<div class="navbar">
+	<div class="nav">
+		<a href="http://www.howzf.com/" id="ind" class="onhover" target="_blank">首 页</a>
+		<a href="http://www.howzf.com/esf/esfnSearch_csnew.htm" id="cs" target="_blank">出售房源</a>
+		<a href="/esf/esfnSearch_cz.htm" id="cz" target="_blank">出租房源</a>
+		<a href="/esf/esfnSearch_brokerageList.htm" id="qy" target="_blank">经纪企业</a>
+		<a href="/esf/esfnSearch_brokerList.htm" id="jjr" target="_blank">经纪人</a>
+		<a href="/info/search_332_33.htm" target="_blank">资 讯</a>
+		<a href="http://www.howzf.com//esf/esfnSearch_communityList.htm" id="xq" target="_blank">小区行情</a>
+		<a href="/esf/gzf/"   target="_blank">公共租赁房</a>
+	</div>
+</div>
+		<script type="text/javascript">$('.nav a').removeClass('onhover');$('.nav #cz').addClass('onhover');</script>
+
+
+		<div class="h10"></div>
+		<div class="unit">
+			<div class="w948 curpos">
+				当前位置：
+				<a href="/" target="_blank">透明售房网</a> >
+				<a href="http://www.howzf.com/" target="_blank">二手房</a> > 房源列表
+			</div>
+		</div>
+		<div class="h10"></div>
+		
+		<form action="/esf/esfnSearch_cz.htm" method="get" id="esfnsearch" name="esfnsearch">
+			<input type="hidden" name="sw" value="" id="sw"/>
+			<input type="hidden" name="aid" value="" id="aid"/>
+			<input type="hidden" name="ro" value="" id="ro"/>
+			<input type="hidden" name="pr" value="" id="pr"/>
+			<input type="hidden" name="area" value="" id="area"/>
+			<input type="hidden" name="sour" value="" id="sour"/>
+			<input type="hidden" name="hire" value="" id="hire"/>
+			<input type="hidden" name="page" value="1" id="page"/>
+			<input type="hidden" name="imgcount" value="" id="imgcount"/>
+			<input type="hidden" name="schoolid" value="" id="schoolid"/>
+			<input type="hidden" name="keywords" value="" id="keywords"/>
+			<input type="hidden" name="ordertype" value="" id="ordertype"/>
+			<input type="hidden" name="intime" value="" id="intime"/>
+		</form>
+		<div class="unit">
+			<div class="fykind">
+				<div class="kindtitle ash2">
+					<ul>
+						<li class="on"><a href="http://www.howzf.com/esf/esfnSearch_cz.htm">区域找房</a></li>
+						<li><a href="http://www.howzf.com/esf/esfnSearch_czschoolList.htm">学区找房</a></li>
+						<li><a href="http://www.howzf.com/esf/esfnSearch_czsubwayList.htm">地铁找房</a></li>
+						<li><a href="/esf/gzf/"  target="_blank">公共租赁房</a></li>
+						<li class="mapin"><a href="http://www.howzf.com/map/housingMap.jsp">地图找房</a></li>
+						<div class="clear"></div>
+				    </ul>
+				</div>
+				<div class="w950 kindbox">
+					
+
+<div class="hotsearch boder1" id="search_all">
+	<p id="aid_p">
+		区域：
+		<a href="/esf/esfnSearch_cz.htm?aid=" class="onhover">不限</a>
+		<a href="/esf/esfnSearch_cz.htm?aid=330102" id="area_330102">上城</a>
+   		<a href="/esf/esfnSearch_cz.htm?aid=330103" id="area_330103">下城</a>
+   		<a href="/esf/esfnSearch_cz.htm?aid=330104" id="area_330104">江干</a>
+   		<a href="/esf/esfnSearch_cz.htm?aid=330105" id="area_330105">拱墅</a>
+   		<a href="/esf/esfnSearch_cz.htm?aid=330106" id="area_330106">西湖</a>
+   		<a href="/esf/esfnSearch_cz.htm?aid=330108" id="area_330108">滨江</a>
+   		<a href="/esf/esfnSearch_cz.htm?aid=330110" id="area_330110">之江</a>
+   		<a href="/esf/esfnSearch_cz.htm?aid=330186" id="area_330186">下沙</a>
+   		<!--<a href="/esf/esfnSearch_cz.htm?aid=330231" id="area_330231">大江东</a>  -->
+   		<a href="/esf/esfnSearch_cz.htm?aid=330181" id="area_330181">萧山</a>
+   		<a href="/esf/esfnSearch_cz.htm?aid=330184" id="area_330184">余杭</a>
+	</p>
+	<div class="childsearch" id="p_330102" style="display:none">
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000001" id="10000001" pid="330102">湖滨</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000002" id="10000002" pid="330102">南星</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000003" id="10000003" pid="330102">清波</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000004" id="10000004" pid="330102">小营</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000005" id="10000005" pid="330102">望江</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000006" id="10000006" pid="330102">紫阳</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000007" id="10000007" pid="330102">复兴</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000008" id="10000008" pid="330102">近江</a>
+	</div>
+	<div class="childsearch" id="p_330103" style="display:none">
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000034" id="10000034" pid="330103">长庆</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000037" id="10000037" pid="330103">潮鸣</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000038" id="10000038" pid="330103">朝晖</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000039" id="10000039" pid="330103">东新</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000040" id="10000040" pid="330103">石桥</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000041" id="10000041" pid="330103">天水</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000043" id="10000043" pid="330103">文晖</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000046" id="10000046" pid="330103">武林</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000048" id="10000048" pid="330103">三塘</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000050" id="10000050" pid="330103">德胜</a>
+	</div>
+	<div class="childsearch" id="p_330104" style="display:none">
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000069" id="10000069" pid="330104">采荷</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000073" id="10000073" pid="330104">城东新城</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000076" id="10000076" pid="330104">丁桥</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000077" id="10000077" pid="330104">笕桥</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000078" id="10000078" pid="330104">景芳</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000079" id="10000079" pid="330104">九堡</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000080" id="10000080" pid="330104">凯旋</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000081" id="10000081" pid="330104">彭埠</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000082" id="10000082" pid="330104">钱江新城</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000083" id="10000083" pid="330104">三里亭</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000084" id="10000084" pid="330104">三堡</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000085" id="10000085" pid="330104">五堡</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000087" id="10000087" pid="330104">闸弄口</a>
+	</div>
+	<div class="childsearch" id="p_330105" style="display:none">
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000013" id="10000013" pid="330105">半山</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000014" id="10000014" pid="330105">大关</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000015" id="10000015" pid="330105">拱宸桥</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000017" id="10000017" pid="330105">和睦</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000019" id="10000019" pid="330105">湖墅</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000021" id="10000021" pid="330105">康桥</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000023" id="10000023" pid="330105">米市巷</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000024" id="10000024" pid="330105">上塘</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000025" id="10000025" pid="330105">小河</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000028" id="10000028" pid="330105">祥符</a>
+	</div>
+	<div class="childsearch" id="p_330106" style="display:none">
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000035" id="10000035" pid="330106">翠苑</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000059" id="10000059" pid="330106">北山</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000062" id="10000062" pid="330106">古荡</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000063" id="10000063" pid="330106">蒋村</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000065" id="10000065" pid="330106">灵隐</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000067" id="10000067" pid="330106">留下</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000068" id="10000068" pid="330106">三墩</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000070" id="10000070" pid="330106">申花</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000071" id="10000071" pid="330106">文新</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000072" id="10000072" pid="330106">西溪</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000074" id="10000074" pid="330106">转塘</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000075" id="10000075" pid="330106">黄龙</a>
+	</div>
+	<div class="childsearch" id="p_330108" style="display:none">
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000010" id="10000010" pid="330108">长河</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000011" id="10000011" pid="330108">西兴</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000012" id="10000012" pid="330108">浦沿</a>
+	</div>
+	<div class="childsearch" id="p_330181" style="display:none">
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000053" id="10000053" pid="330181">北干</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000055" id="10000055" pid="330181">城厢</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000056" id="10000056" pid="330181">蜀山</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000057" id="10000057" pid="330181">闻堰</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000058" id="10000058" pid="330181">萧山市区</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000060" id="10000060" pid="330181">新塘</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000061" id="10000061" pid="330181">开发区</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000064" id="10000064" pid="330181">湘湖</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000066" id="10000066" pid="330181">钱江世纪城</a>
+	</div>
+	<div class="childsearch" id="p_330231" style="display:none">
+ 		<a href="/esf/esfnSearch_cz.htm?aid=330224" id="330224" pid="330231">河庄</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=330225" id="330225" pid="330231">新湾</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=330227" id="330227" pid="330231">前进</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=330229" id="330229" pid="330231">临江</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=330209" id="330209" pid="330231">义蓬</a>
+	</div>
+	<div class="childsearch" id="p_330184" style="display:none">
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000042" id="10000042" pid="330184">老余杭</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000044" id="10000044" pid="330184">良渚</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000045" id="10000045" pid="330184">临平</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000047" id="10000047" pid="330184">瓶窑</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000049" id="10000049" pid="330184">塘栖</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000051" id="10000051" pid="330184">闲林</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000052" id="10000052" pid="330184">星桥</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000054" id="10000054" pid="330184">崇贤</a>
+	</div>
+	<div class="childsearch" id="p_330186" style="display:none">
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10000044" id="10000044" pid="330186">良渚</a>
+ 		<a href="/esf/esfnSearch_cz.htm?aid=10396433" id="10396433" pid="330186">下沙沿江</a>
+	</div>
+	<p id="room_p" >
+		户型：
+		<a href="/esf/esfnSearch_cz.htm?ro=" class="onhover" >不限</a>
+		<a href="/esf/esfnSearch_cz.htm?ro=1" id="room_1">一室</a>
+		<a href="/esf/esfnSearch_cz.htm?ro=2" id="room_2">二室</a>
+		<a href="/esf/esfnSearch_cz.htm?ro=3" id="room_3">三室</a>
+		<a href="/esf/esfnSearch_cz.htm?ro=4" id="room_4">四室</a>
+		<a href="/esf/esfnSearch_cz.htm?ro=5" id="room_5">五室</a>
+		<a href="/esf/esfnSearch_cz.htm?ro=6" id="room_6">五室以上</a>
+	</p>
+	<p id="price_p">
+		租金：
+		<a href="/esf/esfnSearch_cz.htm?pr=" class="onhover">不限</a>
+		<a href="/esf/esfnSearch_cz.htm?pr=0_600" id="price_0_600">600元以下</a>
+		<a href="/esf/esfnSearch_cz.htm?pr=600_1000" id="price_600_1000">600-1000元</a>
+		<a href="/esf/esfnSearch_cz.htm?pr=1000_1500" id="price_1000_1500">1000-1500元</a>
+		<a href="/esf/esfnSearch_cz.htm?pr=1500_2000" id="price_1500_2000">1500-2000元</a>
+		<a href="/esf/esfnSearch_cz.htm?pr=2000_3000" id="price_2000_3000">2000-3000元</a>
+		<a href="/esf/esfnSearch_cz.htm?pr=3000_4000" id="price_3000_4000">3000-4000元</a>
+		<a href="/esf/esfnSearch_cz.htm?pr=4000_5000" id="price_4000_5000">4000-5000元</a>
+		<a href="/esf/esfnSearch_cz.htm?pr=5000_9999999" id="price_5000_9999999">5000元以上</a>
+		<span><input type="text" id="minprice" class="me_price" autocomplete="off" maxlength="6" onfocus="$('#pricebottom').css('display', 'inline');"></span> 至 
+		<span><input type="text" id="maxprice" class="me_price" autocomplete="off" maxlength="6" onfocus="$('#pricebottom').css('display', 'inline');"></span>
+		<span><input class="price_search" id="pricebottom" type="bottom" value="确定" readonly="true" style="display:none; cursor:pointer" onclick="javascript:doCusPrice();"></span>
+	</p>
+	<p id="area_p">
+		面积：
+		<a href="/esf/esfnSearch_cz.htm?area=" class="onhover">不限</a>
+		<a href="/esf/esfnSearch_cz.htm?area=0_50" id="area_0_50">50㎡以下</a>
+		<a href="/esf/esfnSearch_cz.htm?area=50_70" id="area_50_70">50-70㎡</a>
+		<a href="/esf/esfnSearch_cz.htm?area=70_90" id="area_70_90">70-90㎡</a>
+		<a href="/esf/esfnSearch_cz.htm?area=90_110" id="area_90_110">90-110㎡</a>
+		<a href="/esf/esfnSearch_cz.htm?area=110_130" id="area_110_130">110-130㎡</a>
+		<a href="/esf/esfnSearch_cz.htm?area=130_150" id="area_130_150">130-150㎡</a>
+		<a href="/esf/esfnSearch_cz.htm?area=150_200" id="area_150_200">150-200㎡</a>
+		<a href="/esf/esfnSearch_cz.htm?area=200_300" id="area_200_300">200-300㎡</a>
+		<a href="/esf/esfnSearch_cz.htm?area=300_500" id="area_300_500">300-500㎡</a>
+		<a href="/esf/esfnSearch_cz.htm?area=500_999999" id="area_500_999999">500㎡以上</a>
+		<span><input type="text" id="minarea" class="me_price" autocomplete="off" maxlength="5" onfocus="$('#areabottom').css('display', 'inline');"></span> 至 
+		<span><input type="text" id="maxarea" class="me_price" autocomplete="off" maxlength="5" onfocus="$('#areabottom').css('display', 'inline');"></span>
+		<span><input class="price_search" id="areabottom" type="bottom" value="确定" readOnly="true" style="display:none; cursor:pointer" onclick="javascript:doCusArea();"></span>
+	</p>
+	<p id="source_p">
+		来源：
+		<a href="/esf/esfnSearch_cz.htm?sour=" class="onhover">不限</a>
+		<a href="/esf/esfnSearch_cz.htm?sour=1" id="source_1">中介</a>
+		<a href="/esf/esfnSearch_cz.htm?sour=2" id="source_2">个人</a>
+	</p>
+	<p id="hire_p">
+		方式：
+		<a href="/esf/esfnSearch_cz.htm?hire="  class="onhover">不限</a>
+		<a href="/esf/esfnSearch_cz.htm?hire=1" id="hire_1">整租</a>
+		<a href="/esf/esfnSearch_cz.htm?hire=0" id="hire_0">合租</a>
+	</p>
+</div>
+<script type="text/javascript">
+
+//获得地址条件解析结果
+var hreflist;
+if((window.location.href).indexOf("?")>0){
+	hreflist = ( (window.location.href).split("?")[1]).split("&");
+}
+
+//获得
+function 	getHref(id){
+	var href_add="";
+	if(window.location.href.indexOf("?")>0){
+		for(i in hreflist){
+			var temp_arr=hreflist[i].split("=");
+			if(temp_arr[1]!=''&&temp_arr[0]!="page"&&temp_arr[0]!=id){
+				href_add+="&"+hreflist[i];
+			}
+		}
+	}
+	return href_add;
+}
+
+//设置页面基本结构
+initPageState();
+
+//拼接地址栏
+$('#search_all a').each(function(){
+	var this_href= $(this).attr("href");
+	if(this_href.indexOf("?")>0){
+		var id =(this_href.split("?")[1]).split("=")[0];
+		href_add=getHref(id);
+		$(this).attr("href", $(this).attr("href")+href_add);
+	}
+});
+</script>
+				</div>
+			</div>
+
+			<div class="h10"></div>
+			<div class="fylistbox">
+				<div class="navlbar">
+					<div class="navl">
+						<span class="fr">共搜到<font color="#f55b05">1573</font>套</span>
+						<li class="on"
+							onclick=javascript:toSwitch('');>
+							全部房源
+						</li>
+						<li class=""
+							onclick=javascript:toSwitch('a');>
+							认证房源
+						</li>
+						<li class=""
+							onclick=javascript:toSwitch('c');>
+							推荐房源
+						</li>
+						<li class=""
+							onclick=javascript:toSwitch('d');>
+							优质房源
+						</li>
+					</div>
+				</div>
+				<div class="filterbar">
+					<div class="filter">
+						<table width="950" border="0" cellpadding="0" cellspacing="0">
+							<tr>
+								<td height="600">
+									<input name="" type="button" class="btn30" value="比比看"  onclick="loadHouseVs();"/>
+								</td>
+								<td width="100">
+									<span class="checkbox">
+										<input id="imgid" type="checkbox" value="" onclick="selectPicHouseList()"/>
+										<label for="isonline" title="">
+											只看有图房源
+										</label> 	
+									</span>
+								</td>
+								<td width="240" >
+                    				<div class="demo">
+	                   					<dl class="selectn">
+		                  					<dt id="intime_name">发布时间</dt>
+		                     				<dd>
+                             					<ul>
+				             						<li id="intime_1" >1天内</li>
+				             						<li id="intime_3">3天内</li>
+				             						<li id="intime_7">7天内</li>
+				             						<li id="intime_reset">不限</li>
+			               						</ul>
+		                   					</dd>
+                      					</dl>
+	                   					<dl class="select">
+		                  					<dt id="ordertype_name">默认排序</dt>
+		                     				<dd>
+                             					<ul>
+									            	<li id="ordertype_uptime">按更新时间排序</li>
+									            	<li id="ordertype_retime">按发布时间排序</li>
+									            	<li id="ordertype_pricedesc">按租金从高到低</li>
+									            	<li id="ordertype_priceasc">按租金从低到高</li>
+					                            	<li id="ordertype_areadesc">按面积从大到小</li>
+									            	<li id="ordertype_areaasc">按面积从小到大</li>
+                             						<li id="ordertype_reset">默认排序</li>
+			                					</ul>
+		                   					</dd>
+                      					</dl>
+                 					</div>
+                				</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div class="h15"></div>
+				<div class="cslist">
+					<div class="cslistbox">
+						<div class="cslist_l fl">
+						
+							<!-- 加载小区信息 -->
+							<div class="xqdetail" style="display:none"></div>
+
+							
+								
+								
+									<div class="cslistfy">
+								
+									<table width="700" border="0" cellpadding="0" cellspacing="0">
+										<tr>
+											<td colspan="5" align="center" height="22"
+												style="line-height: 22px; padding: 0;">
+												<!-- <div class="hcbh">核查编号：</div> -->
+											</td>
+										</tr>
+									</table>
+									<table width="700" border="0" cellpadding="0" cellspacing="0"
+										class="tbimg">
+										<tr>
+											<td width="25" align="center">
+												<input name="vshouseid" id="checkbox_1161687274" type="checkbox" value="1161687274" onclick="setVsRenthouseId(this);"/>
+												比
+												<br />
+												较
+											</td>
+											<td width="153" align="center" valign="top">
+												<div class="pic2014">
+													<a href="/esf/xq_cz_1161687274.htm" title="凤都苑，精装修好房子出租。" target="_blank"> 
+														<img src="/upload/esf/rentalhouse1/20180608/1161687274/15284353955190_168x134.jpg" width="143" height="106" /> 
+													</a>
+													<div class="pic20141">
+														10
+														图
+													</div>
+													
+												</div>
+											</td>
+											<td width="307">
+												<a href="/esf/xq_cz_1161687274.htm" target="_blank"  title="凤都苑，精装修好房子出租。" class="fytit t">
+													凤都苑，精装修好房子出租。 
+												</a>
+												<br />
+												[<font class="blue1"><a href="javascript:doArea('1000211 ');" >余杭 老余杭</a></font>]
+												<a href="/esf/xq_index_20001080.htm " target=_blank>凤都苑</a>
+												<font title="余杭区禹航路430">
+													余杭区禹航路430
+												</font>
+												<img src="/hzweb/esf/images/mapsite.png" width="10"
+													height="14" />
+												<a href="/esf/xq_cz_1161687274.htm#1-1"  target="_blank" class="blue1"> 地图</a>
+												<br />
+												4室2厅1厨2卫1阳台
+												
+													6/6F
+												
+												
+												
+												
+													经纪人：<a href="/esf/jjr_379041301.htm" target="_blank" class="blue1">蔡丽锋 </a>
+												
+												&nbsp;&nbsp;
+												整租
+												
+												<br />
+												<span class="lgrey">更新时间：2018-06-08 12:53 </span>
+											</td>
+											<td align="center">
+												
+												
+												
+												
+											</td>
+											<td width="90" align="center" valign="top">
+												<p align="right">
+													<span class="f20 orange1">2800 </span>元/月
+													<br />
+												</p>
+												<p class="blue1" align="right">
+													89
+													㎡
+												</p>
+											</td>
+										</tr>
+									</table>
+										
+								</div>
+							
+								
+								
+									<div class="cslistfy">
+								
+									<table width="700" border="0" cellpadding="0" cellspacing="0">
+										<tr>
+											<td colspan="5" align="center" height="22"
+												style="line-height: 22px; padding: 0;">
+												<!-- <div class="hcbh">核查编号：</div> -->
+											</td>
+										</tr>
+									</table>
+									<table width="700" border="0" cellpadding="0" cellspacing="0"
+										class="tbimg">
+										<tr>
+											<td width="25" align="center">
+												<input name="vshouseid" id="checkbox_1161686927" type="checkbox" value="1161686927" onclick="setVsRenthouseId(this);"/>
+												比
+												<br />
+												较
+											</td>
+											<td width="153" align="center" valign="top">
+												<div class="pic2014">
+													<a href="/esf/xq_cz_1161686927.htm" title="万科西庐精装，家具自住配置" target="_blank"> 
+														<img src="/upload/esf/rentalhouse1/20180608/1161686927/15284348858360_168x134.jpg" width="143" height="106" /> 
+													</a>
+													<div class="pic20141">
+														10
+														图
+													</div>
+													
+												</div>
+											</td>
+											<td width="307">
+												<a href="/esf/xq_cz_1161686927.htm" target="_blank"  title="万科西庐精装，家具自住配置" class="fytit t">
+													万科西庐精装，家具自住配置 
+												</a>
+												<br />
+												[<font class="blue1"><a href="javascript:doArea('1000166 ');" >西湖 西溪</a></font>]
+												<a href="/esf/xq_index_129263977.htm " target=_blank>万科西庐</a>
+												<font title="西湖区文一西路和崇义路交叉口西北方向">
+													西湖区文一西路和崇义
+												</font>
+												<img src="/hzweb/esf/images/mapsite.png" width="10"
+													height="14" />
+												<a href="/esf/xq_cz_1161686927.htm#1-1"  target="_blank" class="blue1"> 地图</a>
+												<br />
+												3室2厅1厨1卫1阳台
+												
+													8/15F
+												
+												
+												
+												
+													经纪人：<a href="/esf/jjr_379041301.htm" target="_blank" class="blue1">蔡丽锋 </a>
+												
+												&nbsp;&nbsp;
+												整租
+												
+												<br />
+												<span class="lgrey">更新时间：2018-06-08 12:45 </span>
+											</td>
+											<td align="center">
+												
+												
+												
+												
+											</td>
+											<td width="90" align="center" valign="top">
+												<p align="right">
+													<span class="f20 orange1">5800 </span>元/月
+													<br />
+												</p>
+												<p class="blue1" align="right">
+													89
+													㎡
+												</p>
+											</td>
+										</tr>
+									</table>
+										
+								</div>
+							
+								
+								
+									<div class="cslistfy">
+								
+									<table width="700" border="0" cellpadding="0" cellspacing="0">
+										<tr>
+											<td colspan="5" align="center" height="22"
+												style="line-height: 22px; padding: 0;">
+												<!-- <div class="hcbh">核查编号：</div> -->
+											</td>
+										</tr>
+									</table>
+									<table width="700" border="0" cellpadding="0" cellspacing="0"
+										class="tbimg">
+										<tr>
+											<td width="25" align="center">
+												<input name="vshouseid" id="checkbox_1161686391" type="checkbox" value="1161686391" onclick="setVsRenthouseId(this);"/>
+												比
+												<br />
+												较
+											</td>
+											<td width="153" align="center" valign="top">
+												<div class="pic2014">
+													<a href="/esf/xq_cz_1161686391.htm" title="万科西庐精装修3房两厅一卫 西溪首座 阿里巴巴 西溪湿地附近" target="_blank"> 
+														<img src="/upload/esf/rentalhouse1/20180608/1161686391/15284341968940_168x134.jpg" width="143" height="106" /> 
+													</a>
+													<div class="pic20141">
+														12
+														图
+													</div>
+													
+												</div>
+											</td>
+											<td width="307">
+												<a href="/esf/xq_cz_1161686391.htm" target="_blank"  title="万科西庐精装修3房两厅一卫 西溪首座 阿里巴巴 西溪湿地附近" class="fytit t">
+													万科西庐精装修3房两厅一卫 西溪首座 阿里巴巴 西溪湿地附近 
+												</a>
+												<br />
+												[<font class="blue1"><a href="javascript:doArea('1000166 ');" >西湖 西溪</a></font>]
+												<a href="/esf/xq_index_129263977.htm " target=_blank>万科西庐</a>
+												<font title="西湖区文一西路和崇义路交叉口西北方向">
+													西湖区文一西路和崇义
+												</font>
+												<img src="/hzweb/esf/images/mapsite.png" width="10"
+													height="14" />
+												<a href="/esf/xq_cz_1161686391.htm#1-1"  target="_blank" class="blue1"> 地图</a>
+												<br />
+												3室2厅1厨1卫1阳台
+												
+													10/15F
+												
+												
+												
+												
+													经纪人：<a href="/esf/jjr_379041301.htm" target="_blank" class="blue1">蔡丽锋 </a>
+												
+												&nbsp;&nbsp;
+												整租
+												
+												<br />
+												<span class="lgrey">更新时间：2018-06-08 12:33 </span>
+											</td>
+											<td align="center">
+												
+												
+												
+												
+											</td>
+											<td width="90" align="center" valign="top">
+												<p align="right">
+													<span class="f20 orange1">5900 </span>元/月
+													<br />
+												</p>
+												<p class="blue1" align="right">
+													89
+													㎡
+												</p>
+											</td>
+										</tr>
+									</table>
+										
+								</div>
+							
+								
+								
+									<div class="cslistfy">
+								
+									<table width="700" border="0" cellpadding="0" cellspacing="0">
+										<tr>
+											<td colspan="5" align="center" height="22"
+												style="line-height: 22px; padding: 0;">
+												<!-- <div class="hcbh">核查编号：</div> -->
+											</td>
+										</tr>
+									</table>
+									<table width="700" border="0" cellpadding="0" cellspacing="0"
+										class="tbimg">
+										<tr>
+											<td width="25" align="center">
+												<input name="vshouseid" id="checkbox_1161686237" type="checkbox" value="1161686237" onclick="setVsRenthouseId(this);"/>
+												比
+												<br />
+												较
+											</td>
+											<td width="153" align="center" valign="top">
+												<div class="pic2014">
+													<a href="/esf/xq_cz_1161686237.htm" title="西城时代家园单身公寓出租 朝南带阳台 拎包入住" target="_blank"> 
+														<img src="/upload/esf/rentalhouse1/20180608/1161686237/15284339506720_168x134.jpg" width="143" height="106" /> 
+													</a>
+													<div class="pic20141">
+														8
+														图
+													</div>
+													
+												</div>
+											</td>
+											<td width="307">
+												<a href="/esf/xq_cz_1161686237.htm" target="_blank"  title="西城时代家园单身公寓出租 朝南带阳台 拎包入住" class="fytit t">
+													西城时代家园单身公寓出租 朝南带阳台 拎包入住 
+												</a>
+												<br />
+												[<font class="blue1"><a href="javascript:doArea('1000211 ');" >余杭 老余杭</a></font>]
+												<a href="/esf/xq_index_20000282.htm " target=_blank>西城时代家园</a>
+												<font title="杭州市文一西路与狮山路交汇处南侧">
+													杭州市文一西路与狮山
+												</font>
+												<img src="/hzweb/esf/images/mapsite.png" width="10"
+													height="14" />
+												<a href="/esf/xq_cz_1161686237.htm#1-1"  target="_blank" class="blue1"> 地图</a>
+												<br />
+												1室1厅1厨1卫1阳台
+												
+													6/6F
+												
+												
+												
+												
+													经纪人：<a href="/esf/jjr_379041301.htm" target="_blank" class="blue1">蔡丽锋 </a>
+												
+												&nbsp;&nbsp;
+												整租
+												
+												<br />
+												<span class="lgrey">更新时间：2018-06-08 12:29 </span>
+											</td>
+											<td align="center">
+												
+												
+												
+												
+											</td>
+											<td width="90" align="center" valign="top">
+												<p align="right">
+													<span class="f20 orange1">2000 </span>元/月
+													<br />
+												</p>
+												<p class="blue1" align="right">
+													45
+													㎡
+												</p>
+											</td>
+										</tr>
+									</table>
+										
+								</div>
+							
+								
+								
+									<div class="cslistfy">
+								
+									<table width="700" border="0" cellpadding="0" cellspacing="0">
+										<tr>
+											<td colspan="5" align="center" height="22"
+												style="line-height: 22px; padding: 0;">
+												<!-- <div class="hcbh">核查编号：</div> -->
+											</td>
+										</tr>
+									</table>
+									<table width="700" border="0" cellpadding="0" cellspacing="0"
+										class="tbimg">
+										<tr>
+											<td width="25" align="center">
+												<input name="vshouseid" id="checkbox_1161686049" type="checkbox" value="1161686049" onclick="setVsRenthouseId(this);"/>
+												比
+												<br />
+												较
+											</td>
+											<td width="153" align="center" valign="top">
+												<div class="pic2014">
+													<a href="/esf/xq_cz_1161686049.htm" title="紫竹人家、精装修、拎包 入住" target="_blank"> 
+														<img src="/upload/esf/rentalhouse1/20180608/1161686049/15284336055990_168x134.jpg" width="143" height="106" /> 
+													</a>
+													<div class="pic20141">
+														10
+														图
+													</div>
+													
+												</div>
+											</td>
+											<td width="307">
+												<a href="/esf/xq_cz_1161686049.htm" target="_blank"  title="紫竹人家、精装修、拎包 入住" class="fytit t">
+													紫竹人家、精装修、拎包 入住 
+												</a>
+												<br />
+												[<font class="blue1"><a href="javascript:doArea('1000211 ');" >余杭 老余杭</a></font>]
+												<a href="/esf/xq_index_20000862.htm " target=_blank>紫竹人家</a>
+												<font title="文一路延伸段旁狮山路284号">
+													文一路延伸段旁狮山路
+												</font>
+												<img src="/hzweb/esf/images/mapsite.png" width="10"
+													height="14" />
+												<a href="/esf/xq_cz_1161686049.htm#1-1"  target="_blank" class="blue1"> 地图</a>
+												<br />
+												3室2厅1厨2卫1阳台
+												
+													6/6F
+												
+												
+												
+												
+													经纪人：<a href="/esf/jjr_379041301.htm" target="_blank" class="blue1">蔡丽锋 </a>
+												
+												&nbsp;&nbsp;
+												整租
+												
+												<br />
+												<span class="lgrey">更新时间：2018-06-08 12:24 </span>
+											</td>
+											<td align="center">
+												
+												
+												
+												
+											</td>
+											<td width="90" align="center" valign="top">
+												<p align="right">
+													<span class="f20 orange1">3500 </span>元/月
+													<br />
+												</p>
+												<p class="blue1" align="right">
+													117
+													㎡
+												</p>
+											</td>
+										</tr>
+									</table>
+										
+								</div>
+							
+								
+								
+									<div class="cslistfy">
+								
+									<table width="700" border="0" cellpadding="0" cellspacing="0">
+										<tr>
+											<td colspan="5" align="center" height="22"
+												style="line-height: 22px; padding: 0;">
+												<!-- <div class="hcbh">核查编号：</div> -->
+											</td>
+										</tr>
+									</table>
+									<table width="700" border="0" cellpadding="0" cellspacing="0"
+										class="tbimg">
+										<tr>
+											<td width="25" align="center">
+												<input name="vshouseid" id="checkbox_1161685975" type="checkbox" value="1161685975" onclick="setVsRenthouseId(this);"/>
+												比
+												<br />
+												较
+											</td>
+											<td width="153" align="center" valign="top">
+												<div class="pic2014">
+													<a href="/esf/xq_cz_1161685975.htm" title="万科西庐精装修3房两厅一卫 西溪首座 阿里巴巴 西溪湿地附近" target="_blank"> 
+														<img src="/upload/esf/rentalhouse1/20180608/1161685975/15284335319290_168x134.jpg" width="143" height="106" /> 
+													</a>
+													<div class="pic20141">
+														12
+														图
+													</div>
+													
+												</div>
+											</td>
+											<td width="307">
+												<a href="/esf/xq_cz_1161685975.htm" target="_blank"  title="万科西庐精装修3房两厅一卫 西溪首座 阿里巴巴 西溪湿地附近" class="fytit t">
+													万科西庐精装修3房两厅一卫 西溪首座 阿里巴巴 西溪湿地附近 
+												</a>
+												<br />
+												[<font class="blue1"><a href="javascript:doArea('1000166 ');" >西湖 西溪</a></font>]
+												<a href="/esf/xq_index_129263977.htm " target=_blank>万科西庐</a>
+												<font title="西湖区文一西路和崇义路交叉口西北方向">
+													西湖区文一西路和崇义
+												</font>
+												<img src="/hzweb/esf/images/mapsite.png" width="10"
+													height="14" />
+												<a href="/esf/xq_cz_1161685975.htm#1-1"  target="_blank" class="blue1"> 地图</a>
+												<br />
+												3室2厅1厨1卫1阳台
+												
+													10/15F
+												
+												
+												
+												
+													经纪人：<a href="/esf/jjr_379041301.htm" target="_blank" class="blue1">蔡丽锋 </a>
+												
+												&nbsp;&nbsp;
+												整租
+												
+												<br />
+												<span class="lgrey">更新时间：2018-06-08 12:22 </span>
+											</td>
+											<td align="center">
+												
+												
+												
+												
+											</td>
+											<td width="90" align="center" valign="top">
+												<p align="right">
+													<span class="f20 orange1">5900 </span>元/月
+													<br />
+												</p>
+												<p class="blue1" align="right">
+													89
+													㎡
+												</p>
+											</td>
+										</tr>
+									</table>
+										
+								</div>
+							
+								
+								
+									<div class="cslistfy">
+								
+									<table width="700" border="0" cellpadding="0" cellspacing="0">
+										<tr>
+											<td colspan="5" align="center" height="22"
+												style="line-height: 22px; padding: 0;">
+												<!-- <div class="hcbh">核查编号：</div> -->
+											</td>
+										</tr>
+									</table>
+									<table width="700" border="0" cellpadding="0" cellspacing="0"
+										class="tbimg">
+										<tr>
+											<td width="25" align="center">
+												<input name="vshouseid" id="checkbox_1161685793" type="checkbox" value="1161685793" onclick="setVsRenthouseId(this);"/>
+												比
+												<br />
+												较
+											</td>
+											<td width="153" align="center" valign="top">
+												<div class="pic2014">
+													<a href="/esf/xq_cz_1161685793.htm" title="未来科技城、海创园、梦想小镇、杭师大精装三房" target="_blank"> 
+														<img src="/upload/esf/rentalhouse1/20180608/1161685793/15284333077170_168x134.jpg" width="143" height="106" /> 
+													</a>
+													<div class="pic20141">
+														10
+														图
+													</div>
+													
+												</div>
+											</td>
+											<td width="307">
+												<a href="/esf/xq_cz_1161685793.htm" target="_blank"  title="未来科技城、海创园、梦想小镇、杭师大精装三房" class="fytit t">
+													未来科技城、海创园、梦想小镇、杭师大精装三房 
+												</a>
+												<br />
+												[<font class="blue1"><a href="javascript:doArea('1000213 ');" >余杭 仓前</a></font>]
+												<a href="/esf/xq_index_20043871.htm " target=_blank>仓溢绿苑</a>
+												<font title="余杭文一西路延申段">
+													余杭文一西路延申段
+												</font>
+												<img src="/hzweb/esf/images/mapsite.png" width="10"
+													height="14" />
+												<a href="/esf/xq_cz_1161685793.htm#1-1"  target="_blank" class="blue1"> 地图</a>
+												<br />
+												3室2厅1厨1卫1阳台
+												
+												
+													0-0/7F
+												
+												
+												
+													经纪人：<a href="/esf/jjr_379041301.htm" target="_blank" class="blue1">蔡丽锋 </a>
+												
+												&nbsp;&nbsp;
+												整租
+												
+												<br />
+												<span class="lgrey">更新时间：2018-06-08 12:18 </span>
+											</td>
+											<td align="center">
+												
+												
+												
+												
+											</td>
+											<td width="90" align="center" valign="top">
+												<p align="right">
+													<span class="f20 orange1">3400 </span>元/月
+													<br />
+												</p>
+												<p class="blue1" align="right">
+													100
+													㎡
+												</p>
+											</td>
+										</tr>
+									</table>
+										
+								</div>
+							
+								
+								
+									<div class="cslistfy">
+								
+									<table width="700" border="0" cellpadding="0" cellspacing="0">
+										<tr>
+											<td colspan="5" align="center" height="22"
+												style="line-height: 22px; padding: 0;">
+												<!-- <div class="hcbh">核查编号：</div> -->
+											</td>
+										</tr>
+									</table>
+									<table width="700" border="0" cellpadding="0" cellspacing="0"
+										class="tbimg">
+										<tr>
+											<td width="25" align="center">
+												<input name="vshouseid" id="checkbox_1161685093" type="checkbox" value="1161685093" onclick="setVsRenthouseId(this);"/>
+												比
+												<br />
+												较
+											</td>
+											<td width="153" align="center" valign="top">
+												<div class="pic2014">
+													<a href="/esf/xq_cz_1161685093.htm" title="海创对面中控华为精装主卧价格可谈逸天广场适合陪读中间位置" target="_blank"> 
+														<img src="/upload/esf/sellhouse1/20180608/1161685093/15284316949740_168x134.jpg" width="143" height="106" /> 
+													</a>
+													<div class="pic20141">
+														5
+														图
+													</div>
+													
+												</div>
+											</td>
+											<td width="307">
+												<a href="/esf/xq_cz_1161685093.htm" target="_blank"  title="海创对面中控华为精装主卧价格可谈逸天广场适合陪读中间位置" class="fytit t">
+													海创对面中控华为精装主卧价格可谈逸天广场适合陪读中间位置 
+												</a>
+												<br />
+												[<font class="blue1"><a href="javascript:doArea('1000103 ');" >滨江 浦沿</a></font>]
+												<a href="/esf/xq_index_10004881.htm " target=_blank>贺田尚城</a>
+												<font title="滨江区六和路,新生路(六和塔正对面)">
+													滨江区六和路,新生路
+												</font>
+												<img src="/hzweb/esf/images/mapsite.png" width="10"
+													height="14" />
+												<a href="/esf/xq_cz_1161685093.htm#1-1"  target="_blank" class="blue1"> 地图</a>
+												<br />
+												1室1厅1厨1卫
+												
+													9/13F
+												
+												
+												房东：李松涛
+												
+												&nbsp;&nbsp;
+												整租
+												
+												<br />
+												<span class="lgrey">更新时间：2018-06-08 11:53 </span>
+											</td>
+											<td align="center">
+												
+												
+												
+												
+											</td>
+											<td width="90" align="center" valign="top">
+												<p align="right">
+													<span class="f20 orange1">2000 </span>元/月
+													<br />
+												</p>
+												<p class="blue1" align="right">
+													20
+													㎡
+												</p>
+											</td>
+										</tr>
+									</table>
+										
+								</div>
+							
+								
+								
+									<div class="cslistfy">
+								
+									<table width="700" border="0" cellpadding="0" cellspacing="0">
+										<tr>
+											<td colspan="5" align="center" height="22"
+												style="line-height: 22px; padding: 0;">
+												<!-- <div class="hcbh">核查编号：</div> -->
+											</td>
+										</tr>
+									</table>
+									<table width="700" border="0" cellpadding="0" cellspacing="0"
+										class="tbimg">
+										<tr>
+											<td width="25" align="center">
+												<input name="vshouseid" id="checkbox_1161684946" type="checkbox" value="1161684946" onclick="setVsRenthouseId(this);"/>
+												比
+												<br />
+												较
+											</td>
+											<td width="153" align="center" valign="top">
+												<div class="pic2014">
+													<a href="/esf/xq_cz_1161684946.htm" title="星汇荣邸江南文苑精装三房家电齐全价格可谈合租好房可押一付一" target="_blank"> 
+														<img src="/upload/esf/sellhouse1/20180608/1161684946/15284317137250_168x134.jpg" width="143" height="106" /> 
+													</a>
+													<div class="pic20141">
+														7
+														图
+													</div>
+													
+												</div>
+											</td>
+											<td width="307">
+												<a href="/esf/xq_cz_1161684946.htm" target="_blank"  title="星汇荣邸江南文苑精装三房家电齐全价格可谈合租好房可押一付一" class="fytit t">
+													星汇荣邸江南文苑精装三房家电齐全价格可谈合租好房可押一付一 
+												</a>
+												<br />
+												[<font class="blue1"><a href="javascript:doArea('1000103 ');" >滨江 浦沿</a></font>]
+												<a href="/esf/xq_index_10006113.htm " target=_blank>星汇荣邸</a>
+												<font title="浦沿路369号(坚塔路和浦沿路交叉口附近)">
+													浦沿路369号(坚塔
+												</font>
+												<img src="/hzweb/esf/images/mapsite.png" width="10"
+													height="14" />
+												<a href="/esf/xq_cz_1161684946.htm#1-1"  target="_blank" class="blue1"> 地图</a>
+												<br />
+												3室2厅1厨1卫1阳台
+												
+													9/32F
+												
+												
+												房东：李松涛
+												
+												&nbsp;&nbsp;
+												整租
+												
+												<br />
+												<span class="lgrey">更新时间：2018-06-08 11:51 </span>
+											</td>
+											<td align="center">
+												
+												
+												
+												
+											</td>
+											<td width="90" align="center" valign="top">
+												<p align="right">
+													<span class="f20 orange1">4300 </span>元/月
+													<br />
+												</p>
+												<p class="blue1" align="right">
+													90
+													㎡
+												</p>
+											</td>
+										</tr>
+									</table>
+										
+								</div>
+							
+								
+								
+									<div class="cslistfy">
+								
+									<table width="700" border="0" cellpadding="0" cellspacing="0">
+										<tr>
+											<td colspan="5" align="center" height="22"
+												style="line-height: 22px; padding: 0;">
+												<!-- <div class="hcbh">核查编号：</div> -->
+											</td>
+										</tr>
+									</table>
+									<table width="700" border="0" cellpadding="0" cellspacing="0"
+										class="tbimg">
+										<tr>
+											<td width="25" align="center">
+												<input name="vshouseid" id="checkbox_1161684113" type="checkbox" value="1161684113" onclick="setVsRenthouseId(this);"/>
+												比
+												<br />
+												较
+											</td>
+											<td width="153" align="center" valign="top">
+												<div class="pic2014">
+													<a href="/esf/xq_cz_1161684113.htm" title="大华海派风范 精装4房2卫 配套成熟位置便利 还带车位" target="_blank"> 
+														<img src="/upload/esf/rentalhouse1/20180608/1161684113/15284308752540_168x134.jpg" width="143" height="106" /> 
+													</a>
+													<div class="pic20141">
+														11
+														图
+													</div>
+													
+												</div>
+											</td>
+											<td width="307">
+												<a href="/esf/xq_cz_1161684113.htm" target="_blank"  title="大华海派风范 精装4房2卫 配套成熟位置便利 还带车位" class="fytit t">
+													大华海派风范 精装4房2卫 配套成熟位置便利 还带车位 
+												</a>
+												<br />
+												[<font class="blue1"><a href="javascript:doArea('1000211 ');" >余杭 老余杭</a></font>]
+												<a href="/esf/xq_index_20000714.htm " target=_blank>大华海派风范</a>
+												<font title="文一西路北、同城印象东侧">
+													文一西路北、同城印象
+												</font>
+												<img src="/hzweb/esf/images/mapsite.png" width="10"
+													height="14" />
+												<a href="/esf/xq_cz_1161684113.htm#1-1"  target="_blank" class="blue1"> 地图</a>
+												<br />
+												4室2厅1厨2卫1阳台
+												
+												
+													0-0/18F
+												
+												
+												
+													经纪人：<a href="/esf/jjr_379041301.htm" target="_blank" class="blue1">蔡丽锋 </a>
+												
+												&nbsp;&nbsp;
+												整租
+												
+												<br />
+												<span class="lgrey">更新时间：2018-06-08 11:40 </span>
+											</td>
+											<td align="center">
+												
+												
+												
+												
+											</td>
+											<td width="90" align="center" valign="top">
+												<p align="right">
+													<span class="f20 orange1">3300 </span>元/月
+													<br />
+												</p>
+												<p class="blue1" align="right">
+													110
+													㎡
+												</p>
+											</td>
+										</tr>
+									</table>
+										
+								</div>
+							
+								
+								
+									<div class="cslistfy">
+								
+									<table width="700" border="0" cellpadding="0" cellspacing="0">
+										<tr>
+											<td colspan="5" align="center" height="22"
+												style="line-height: 22px; padding: 0;">
+												<!-- <div class="hcbh">核查编号：</div> -->
+											</td>
+										</tr>
+									</table>
+									<table width="700" border="0" cellpadding="0" cellspacing="0"
+										class="tbimg">
+										<tr>
+											<td width="25" align="center">
+												<input name="vshouseid" id="checkbox_1161683410" type="checkbox" value="1161683410" onclick="setVsRenthouseId(this);"/>
+												比
+												<br />
+												较
+											</td>
+											<td width="153" align="center" valign="top">
+												<div class="pic2014">
+													<a href="/esf/xq_cz_1161683410.htm" title="名城博园单身公寓，房东诚心出租" target="_blank"> 
+														<img src="/upload/esf/sellhouse1/20180608/1161683410/15284299450350_168x134.jpg" width="143" height="106" /> 
+													</a>
+													<div class="pic20141">
+														8
+														图
+													</div>
+													
+												</div>
+											</td>
+											<td width="307">
+												<a href="/esf/xq_cz_1161683410.htm" target="_blank"  title="名城博园单身公寓，房东诚心出租" class="fytit t">
+													名城博园单身公寓，房东诚心出租 
+												</a>
+												<br />
+												[<font class="blue1"><a href="javascript:doArea('1000210 ');" >余杭 良渚</a></font>]
+												<a href="/esf/xq_index_5000928.htm " target=_blank>嘉凯城名城博园</a>
+												<font title="农副物流园区博园路与棕榈路交汇处">
+													农副物流园区博园路与
+												</font>
+												<img src="/hzweb/esf/images/mapsite.png" width="10"
+													height="14" />
+												<a href="/esf/xq_cz_1161683410.htm#1-1"  target="_blank" class="blue1"> 地图</a>
+												<br />
+												1室1厅1厨1卫1阳台
+												
+													13/28F
+												
+												
+												
+												
+													经纪人：<a href="/esf/jjr_10006420.htm" target="_blank" class="blue1">吴月英 </a>
+												
+												&nbsp;&nbsp;
+												整租
+												
+												<br />
+												<span class="lgrey">更新时间：2018-06-08 11:22 </span>
+											</td>
+											<td align="center">
+												
+												
+												
+												
+											</td>
+											<td width="90" align="center" valign="top">
+												<p align="right">
+													<span class="f20 orange1">2600 </span>元/月
+													<br />
+												</p>
+												<p class="blue1" align="right">
+													56
+													㎡
+												</p>
+											</td>
+										</tr>
+									</table>
+										
+								</div>
+							
+								
+								
+									<div class="cslistfy">
+								
+									<table width="700" border="0" cellpadding="0" cellspacing="0">
+										<tr>
+											<td colspan="5" align="center" height="22"
+												style="line-height: 22px; padding: 0;">
+												<!-- <div class="hcbh">核查编号：</div> -->
+											</td>
+										</tr>
+									</table>
+									<table width="700" border="0" cellpadding="0" cellspacing="0"
+										class="tbimg">
+										<tr>
+											<td width="25" align="center">
+												<input name="vshouseid" id="checkbox_1161683366" type="checkbox" value="1161683366" onclick="setVsRenthouseId(this);"/>
+												比
+												<br />
+												较
+											</td>
+											<td width="153" align="center" valign="top">
+												<div class="pic2014">
+													<a href="/esf/xq_cz_1161683366.htm" title="逸居城三期  二室，价格可谈 随时看房" target="_blank"> 
+														<img src="/upload/esf/sellhouse1/20180608/1161683366/15284298940860_168x134.jpg" width="143" height="106" /> 
+													</a>
+													<div class="pic20141">
+														9
+														图
+													</div>
+													
+												</div>
+											</td>
+											<td width="307">
+												<a href="/esf/xq_cz_1161683366.htm" target="_blank"  title="逸居城三期  二室，价格可谈 随时看房" class="fytit t">
+													逸居城三期  二室，价格可谈 随时看房 
+												</a>
+												<br />
+												[<font class="blue1"><a href="javascript:doArea('1000209 ');" >余杭 勾庄</a></font>]
+												<a href="/esf/xq_index_20000825.htm " target=_blank>逸居城</a>
+												<font title="余杭勾庄逸盛路44号（物流中心内)">
+													余杭勾庄逸盛路44号
+												</font>
+												<img src="/hzweb/esf/images/mapsite.png" width="10"
+													height="14" />
+												<a href="/esf/xq_cz_1161683366.htm#1-1"  target="_blank" class="blue1"> 地图</a>
+												<br />
+												2室2厅1厨1卫1阳台
+												
+													5/11F
+												
+												
+												
+												
+													经纪人：<a href="/esf/jjr_10006420.htm" target="_blank" class="blue1">吴月英 </a>
+												
+												&nbsp;&nbsp;
+												整租
+												
+												<br />
+												<span class="lgrey">更新时间：2018-06-08 11:22 </span>
+											</td>
+											<td align="center">
+												
+												
+												
+												
+											</td>
+											<td width="90" align="center" valign="top">
+												<p align="right">
+													<span class="f20 orange1">3300 </span>元/月
+													<br />
+												</p>
+												<p class="blue1" align="right">
+													88
+													㎡
+												</p>
+											</td>
+										</tr>
+									</table>
+										
+								</div>
+							
+								
+								
+									<div class="cslistfy">
+								
+									<table width="700" border="0" cellpadding="0" cellspacing="0">
+										<tr>
+											<td colspan="5" align="center" height="22"
+												style="line-height: 22px; padding: 0;">
+												<!-- <div class="hcbh">核查编号：</div> -->
+											</td>
+										</tr>
+									</table>
+									<table width="700" border="0" cellpadding="0" cellspacing="0"
+										class="tbimg">
+										<tr>
+											<td width="25" align="center">
+												<input name="vshouseid" id="checkbox_1161683324" type="checkbox" value="1161683324" onclick="setVsRenthouseId(this);"/>
+												比
+												<br />
+												较
+											</td>
+											<td width="153" align="center" valign="top">
+												<div class="pic2014">
+													<a href="/esf/xq_cz_1161683324.htm" title="逸居城三期  二室，价格可谈 随时看房" target="_blank"> 
+														<img src="/upload/esf/sellhouse1/20180608/1161683324/15284297881470_168x134.jpg" width="143" height="106" /> 
+													</a>
+													<div class="pic20141">
+														9
+														图
+													</div>
+													
+												</div>
+											</td>
+											<td width="307">
+												<a href="/esf/xq_cz_1161683324.htm" target="_blank"  title="逸居城三期  二室，价格可谈 随时看房" class="fytit t">
+													逸居城三期  二室，价格可谈 随时看房 
+												</a>
+												<br />
+												[<font class="blue1"><a href="javascript:doArea('1000209 ');" >余杭 勾庄</a></font>]
+												<a href="/esf/xq_index_20000825.htm " target=_blank>逸居城</a>
+												<font title="余杭勾庄逸盛路44号（物流中心内)">
+													余杭勾庄逸盛路44号
+												</font>
+												<img src="/hzweb/esf/images/mapsite.png" width="10"
+													height="14" />
+												<a href="/esf/xq_cz_1161683324.htm#1-1"  target="_blank" class="blue1"> 地图</a>
+												<br />
+												2室2厅1厨1卫1阳台
+												
+													5/11F
+												
+												
+												
+												
+													经纪人：<a href="/esf/jjr_10006420.htm" target="_blank" class="blue1">吴月英 </a>
+												
+												&nbsp;&nbsp;
+												整租
+												
+												<br />
+												<span class="lgrey">更新时间：2018-06-08 11:21 </span>
+											</td>
+											<td align="center">
+												
+												
+												
+												
+											</td>
+											<td width="90" align="center" valign="top">
+												<p align="right">
+													<span class="f20 orange1">3300 </span>元/月
+													<br />
+												</p>
+												<p class="blue1" align="right">
+													88
+													㎡
+												</p>
+											</td>
+										</tr>
+									</table>
+										
+								</div>
+							
+								
+								
+									<div class="cslistfy">
+								
+									<table width="700" border="0" cellpadding="0" cellspacing="0">
+										<tr>
+											<td colspan="5" align="center" height="22"
+												style="line-height: 22px; padding: 0;">
+												<!-- <div class="hcbh">核查编号：</div> -->
+											</td>
+										</tr>
+									</table>
+									<table width="700" border="0" cellpadding="0" cellspacing="0"
+										class="tbimg">
+										<tr>
+											<td width="25" align="center">
+												<input name="vshouseid" id="checkbox_1161683294" type="checkbox" value="1161683294" onclick="setVsRenthouseId(this);"/>
+												比
+												<br />
+												较
+											</td>
+											<td width="153" align="center" valign="top">
+												<div class="pic2014">
+													<a href="/esf/xq_cz_1161683294.htm" title="上亿彩虹郡 物流 三房两卫带车位 可长租 随时看房" target="_blank"> 
+														<img src="/upload/esf/sellhouse1/20180608/1161683294/15284298042940_168x134.jpg" width="143" height="106" /> 
+													</a>
+													<div class="pic20141">
+														9
+														图
+													</div>
+													
+												</div>
+											</td>
+											<td width="307">
+												<a href="/esf/xq_cz_1161683294.htm" target="_blank"  title="上亿彩虹郡 物流 三房两卫带车位 可长租 随时看房" class="fytit t">
+													上亿彩虹郡 物流 三房两卫带车位 可长租 随时看房 
+												</a>
+												<br />
+												[<font class="blue1"><a href="javascript:doArea('1000209 ');" >余杭 勾庄</a></font>]
+												<a href="/esf/xq_index_169534722.htm " target=_blank>上亿彩虹郡</a>
+												<font title="余杭区良渚街道博园路">
+													余杭区良渚街道博园路
+												</font>
+												<img src="/hzweb/esf/images/mapsite.png" width="10"
+													height="14" />
+												<a href="/esf/xq_cz_1161683294.htm#1-1"  target="_blank" class="blue1"> 地图</a>
+												<br />
+												3室2厅1厨1卫1阳台
+												
+													3/11F
+												
+												
+												
+												
+													经纪人：<a href="/esf/jjr_10006420.htm" target="_blank" class="blue1">吴月英 </a>
+												
+												&nbsp;&nbsp;
+												整租
+												
+												<br />
+												<span class="lgrey">更新时间：2018-06-08 11:20 </span>
+											</td>
+											<td align="center">
+												
+												
+												
+												
+											</td>
+											<td width="90" align="center" valign="top">
+												<p align="right">
+													<span class="f20 orange1">4000 </span>元/月
+													<br />
+												</p>
+												<p class="blue1" align="right">
+													106
+													㎡
+												</p>
+											</td>
+										</tr>
+									</table>
+										
+								</div>
+							
+								
+								
+									<div class="cslistfy">
+								
+									<table width="700" border="0" cellpadding="0" cellspacing="0">
+										<tr>
+											<td colspan="5" align="center" height="22"
+												style="line-height: 22px; padding: 0;">
+												<!-- <div class="hcbh">核查编号：</div> -->
+											</td>
+										</tr>
+									</table>
+									<table width="700" border="0" cellpadding="0" cellspacing="0"
+										class="tbimg">
+										<tr>
+											<td width="25" align="center">
+												<input name="vshouseid" id="checkbox_1161683280" type="checkbox" value="1161683280" onclick="setVsRenthouseId(this);"/>
+												比
+												<br />
+												较
+											</td>
+											<td width="153" align="center" valign="top">
+												<div class="pic2014">
+													<a href="/esf/xq_cz_1161683280.htm" title="彩虹郡中等装修3室2厅出租，可长租" target="_blank"> 
+														<img src="/upload/esf/sellhouse1/20180608/1161683280/15284298239070_168x134.jpg" width="143" height="106" /> 
+													</a>
+													<div class="pic20141">
+														9
+														图
+													</div>
+													
+												</div>
+											</td>
+											<td width="307">
+												<a href="/esf/xq_cz_1161683280.htm" target="_blank"  title="彩虹郡中等装修3室2厅出租，可长租" class="fytit t">
+													彩虹郡中等装修3室2厅出租，可长租 
+												</a>
+												<br />
+												[<font class="blue1"><a href="javascript:doArea('1000209 ');" >余杭 勾庄</a></font>]
+												<a href="/esf/xq_index_169534722.htm " target=_blank>上亿彩虹郡</a>
+												<font title="余杭区良渚街道博园路">
+													余杭区良渚街道博园路
+												</font>
+												<img src="/hzweb/esf/images/mapsite.png" width="10"
+													height="14" />
+												<a href="/esf/xq_cz_1161683280.htm#1-1"  target="_blank" class="blue1"> 地图</a>
+												<br />
+												3室2厅1厨1卫1阳台
+												
+													2/11F
+												
+												
+												
+												
+													经纪人：<a href="/esf/jjr_10006420.htm" target="_blank" class="blue1">吴月英 </a>
+												
+												&nbsp;&nbsp;
+												整租
+												
+												<br />
+												<span class="lgrey">更新时间：2018-06-08 11:20 </span>
+											</td>
+											<td align="center">
+												
+												
+												
+												
+											</td>
+											<td width="90" align="center" valign="top">
+												<p align="right">
+													<span class="f20 orange1">3600 </span>元/月
+													<br />
+												</p>
+												<p class="blue1" align="right">
+													106
+													㎡
+												</p>
+											</td>
+										</tr>
+									</table>
+										
+								</div>
+							
+
+							<div class="h15"></div>
+							<div class="pagenext">
+								<a href="">首页</a>
+								<a class="e">上一页</a><a href="javascript:void(0);" onclick="doPage(1);return false;" class="d" >1</a><a href="javascript:void(0);" onclick="doPage(2);return false;" class="c" >2</a><a href="javascript:void(0);" onclick="doPage(3);return false;" class="c" >3</a><a href="javascript:void(0);" onclick="doPage(4);return false;" class="c" >4</a><a href="javascript:void(0);" onclick="doPage(5);return false;" class="c" >5</a><a href="javascript:void(0);" onclick="doPage(6);return false;" class="c" >6</a><a href="javascript:void(0);" onclick="doPage(7);return false;" class="c" >7</a><a href="javascript:void(0);" onclick="doPage(8);return false;" class="c" >8</a><a href="javascript:void(0);" onclick="doPage(9);return false;" class="c" >9</a><a href="javascript:void(0)" class="c" onclick="doPage(2);return false;">下一页</a>&nbsp;&nbsp;
+								到第
+								<input name="pagenum" id="pagenum" type="text" class="pagenum" />
+								页
+								<a href="javascript:doPageNum();">跳转</a>
+								<a href="javascript:doPage('105');">末页</a>
+							</div>
+							<div class="pagebtn">
+								提示：键盘也能翻页，试试“← →”键
+								<i id="closepagebtn" onclick="javascirpt:$('.pagebtn').css('display','none');$.cookie('offpage', '1', {path: '/'});"></i>
+							</div>
+							<script type="text/javascript">
+								$(document).bind('keyup', function( event ) {
+									if (event.keyCode == 39){
+										if($('.pagenext a').eq(-3).html()=='下一页' && $('.pagenext a').eq(-3).attr('class') != 'e'){
+											doPage(Math.round($('#page').val()) + 1);
+										}
+									}
+									else if (event.keyCode == 37){
+										if($('.pagenext a').eq(1).html()=='上一页' && $('.pagenext a').eq(1).attr('class') != 'e'){
+											doPage(Math.round($('#page').val()) - 1);
+										}
+									}
+								});
+							</script>
+							<div class="clear"></div>
+						</div>
+					</div>
+
+					<div class="cslist_r fr">
+	<div class="tools boder1">
+		<dl>
+			<dt class="f14 ash1">购房工具</dt>
+			<dd>
+				<ul>
+					<li class="ash1 tool1"><a href="/info/tools_33.htm" target="_blank">房贷计算器</a></li>
+					<li class="ash1 tool2"><a href="/info/tools_gfsf.htm" target="_blank">税费计算</a></li>
+					<li class="ash1 tool3"><a href="/esf/file/zlht.doc" target="_blank">合同范本</a></li>
+					<div class="clear"></div>
+				</ul>
+			</dd>
+		</dl>
+		<div class="clear"></div>
+	</div>
+	<div class="h10"></div>
+	<div class="expert boder1">
+		<dl>
+			<dt class="f14 ash1">推荐小区专家<span id="how">
+				<a href="javascript:void(0);" class="blue1" id="H24" onmouseover="showHelper('#H24', '怎样成为推荐专家', '最新任命为 小区专家 的10名经纪人。',30)" onmouseout="$('#_Popup_help').remove()">怎样成为推荐专家</a>
+				</span>
+			</dt>
+			<dd>
+				<ul id="show_specialList" style="dispay:none;">
+									<div class="clear"></div>
+				</ul>
+			</dd>
+		</dl>
+	</div>
+	  
+	<div class="h10"></div>
+	  
+	<div class="tjfy boder1">
+		<dl>
+			<dt class="f14 ash1">推荐房源
+				<span id="how">
+					<a href="" class="blue1" id="H23" onmouseover="showHelper('#H23', '怎样成为推荐房源', '显示最新被推荐的认证房源，您可进入用户后台兑换 认证推荐房源 服务。,30)" onmouseout="$('#_Popup_help').remove()">怎样成为推荐房源</a>
+				</span>
+			</dt>
+			<dd>
+				<ul>
+					<div class="clear"></div>
+				</ul>
+			</dd>
+		</dl>
+	</div>
+	  
+	 <div class="clear"></div>
+ </div>
+
+					<div class="clear"></div>
+
+				</div>
+			</div>
+			<script>
+				jQuery(".fylistbox").slide( {
+					titCell : ".navl li",
+					mainCell : ".cslistbox",
+					delayTime : 0,
+					trigger : "click"
+				});
+			</script>
+
+			<div class="h15"></div>
+<div class="fyshow w948">
+	<dl>
+		<dt class="f14 ash1">
+			<span class="fr ash3"><a href="/esf/esfnSearch_cz.htm" target="_blank">更多房源>></a></span>你可能感兴趣的二手房
+		</dt>
+		<dd>
+			<div class="piclist">
+				<ul id="directHouse_ul"></ul>
+				
+				<div class="clear"></div>
+			</div>
+		</dd>
+	</dl>
+</div>
+<div class="h15"></div>
+
+<div class="fyshow w948">
+	<dl>
+		<dt class="f14 ash1">
+			<span class="fr ash3"><a href="/hzweb/newhouse/" target="_blank">更多房源>></a></span>你可能感兴趣的新房
+		</dt>
+		<dd>
+			<div class="piclist">
+				<ul id="newhouselist_ul">
+				</ul>
+				<script type="text/javascript" src="/include/hzweb/esf/esf_under_newhouses.js"></script>
+				<div class="clear"></div>
+			</div>
+		</dd>
+	</dl>
+</div>
+<div class="h15"></div>
+
+
+<script type="text/javascript">
+		//读取定向推广
+		function loadCzHouseWithDirect(){
+			var areaid ='';
+			if($('#aid').length>0){
+				areaid=$('#aid').val();
+			} 
+			$.ajax({
+				url:'/esfn/EsfnSearch_loadCzHouseWithDirect.jspx?areaid='+areaid,
+						type: 'get', dataType:'html', cache: false, async:false,
+						error: function(xhr){
+							showAlertPopup("系统错误，请重新登陆");
+						},
+						success: function(data){
+							var result = eval('(' + data + ')');
+							var list = result.list;
+							var html_li='';
+							var html_floor='';
+							for(var i in list){
+								html_floor='';
+								if(list[i].floornobegin==list[i].floornoend){
+									html_floor=list[i].floornobegin;
+								}
+								else{
+									html_floor=list[i].floornobegin+"/"+list[i].floornoend;
+								}
+								html_li+='<li>'+
+											'<a href="/esf/xq_cz_'+list[i].rentalhouseid+'.htm" target="_blank">'+
+												'<img src='+(list[i].pic).replace('=', '_168x134')+'"/" title="'+list[i].sellhousetitle+'" alt="'+list[i].sellhousetitle+'"/>'+
+											'</a>'+
+											'<p class="blue1">'+
+												'<a href="/esf/xq_cz_'+list[i].rentalhouseid+'.htm" target="_blank">'+list[i].communityname+'</a><span class="ash3">['+list[i].areaname+']</span>'+
+											'</p>'+
+											'<p class="blue1">'+
+												list[i].room+'室'+list[i].livingroom+'厅,'+list[i].builtuparea+'㎡,'+html_floor+'F'+
+											'</p>'+
+											'<p>'+
+												'<span class="orange1 price1">'+list[i].rentalprice+'</span>元/月'+
+											'</p>'+
+										'</li>';
+							}
+							$('#directHouse_ul').html(html_li);
+						}
+					});
+		}
+		loadCzHouseWithDirect();
+		
+		var news;
+		//加载您感兴趣的新房
+		if($('#aid').val() != '' && $('#aid').val() != undefined && $('#aid').length>0){
+			news = new Array();
+			for(i in newhouses){
+				if($('#aid').val() == '330181' || $('#aid').val() == '330184'){
+					if($('#aid').val() == newhouses[i].siteid){
+						news.push(newhouses[i]);
+					}
+				}else{
+					if($('#aid').val() == newhouses[i].districtid){
+						news.push(newhouses[i]);
+					}
+				}
+			}
+		}else{
+			news = newhouses;
+		}
+		var str = '';
+		var num = news.length;
+		if(num >= 5)	{
+			num = 5;
+		}
+		for(var i=0; i<num; i++){
+			str += '<li><a href="/newhouse/property_'+ news[i].siteid +'_'+ news[i].propertyid +'_info.htm" target="_blank">' + 
+					'<img src='+ news[i].logo.replace('=', '_150x113') +'"/" alt="'+ news[i].propertyname +'" title="'+ news[i].propertyname +'"/></a>' +
+					'<p class="blue1 alignc">' +
+						'<a href="/newhouse/property_'+ news[i].siteid +'_'+ news[i].propertyid +'_info.htm" target="_blank">'+ news[i].propertyname +'</a>' +
+						'<span class="ash3">['+ news[i].districtname +']</span>' +
+					'</p>' +
+				'</li>';
+		}
+		$('#newhouselist_ul').append(str);
+</script>
+
+
+
+
+			<div class="fyshow w948" id="cookiehouse">
+				<dl>
+					<dt class="f14 ash1">
+						<span class="fr ash3"><a href="/esf/esfnSearch_cz.htm" target="_blank">更多房源>></a></span>您最近浏览过的房源
+					</dt>
+					<dd>
+						<div class="piclist">
+							<ul id="lookafter">
+							</ul>
+							<script type="text/javascript">showCookieRentalHouseForList();</script>
+							<div class="clear"></div>
+						</div>
+					</dd>
+				</dl>
+			</div>
+			<div class="clear"></div>
+
+		</div>
+
+		<script type="text/javascript">
+	function finderror() {
+		window.open("/rjz/WebAllCorrectAction_findError.jspx?url="
+				+ window.location.href);
+	}
+	
+	$(function() {
+		$(window).scroll(function() {
+			if ($(window).scrollTop() >= 300) {
+				$('#adv_atop').fadeIn(300);
+			} else {
+				$('#adv_atop').fadeOut(300);
+			}
+		});
+	});
+</script>
+<div class="copyright">
+	<div class="copy_inline">
+		<a href="/cp2013/web/" target="_blank">公司介绍</a>
+		| <a href="http://tmsf.com/cp2013/index01.html" target="_blank">关于我们</a>  
+		| <a href="http://tmsf.com/cp2013/index03.html" target="_blank">联系方式</a> 
+		| <a href="http://tmsf.com/cp2013/index04.html" target="_blank">网站地图</a> 
+		| <a href="http://tmsf.com/cp2013/index05.html" target="_blank">诚聘精英</a> 
+		| <a href="http://tmsf.com/cp2013/index06.html" target="_blank">免责声明</a> 
+		| <a href="http://tmsf.com/cp2013/index08.html" target="_blank">责任编辑</a> 
+		| <a href="http://tmsf.com/cp2013/index09.html" target="_blank">合作伙伴</a> 
+		| <a href="/mem/mem_correct_advise.jsp" target="_blank" title="意见反馈">意见反馈</a>
+		| <a href="/info/search_32669670_33.htm" title="网站动态" target="_blank">网站动态</a>
+		| <a href="http://www.tfjy.com/" title="法律顾问" target="_blank">法律顾问</a>
+	</div>
+	<div class="copy_inline">
+		经营许可证：<a href="http://www.miitbeian.gov.cn" target="_blank">浙B2-20100020</a> 网络实名：<a href="/">透明售房网</a> 版权所有：<a href="/cp2013/web/" target="_blank">杭州中房信息科技有限公司</a>
+	</div>
+	<div class="copy_inline">
+		声明：本网站房产市场信息数据来源于杭州市住保房管网
+	</div>
+</div>
+<a href="/mem/mem_correct_advise.jsp" id="adv_atop" target="_blank" style="padding: 4px 2px;color: white !important;width: 1.8em;line-height: 14px;text-align: center;position: fixed;_position: absolute;bottom: 170px;left: 50%;margin-left: 476px;background-color:#4b8ad8; background-image:url(/hzweb/esf/images/fk.gif); background-repeat:no-repeat; background-position:center 0px; cursor:pointer; padding-top:24px; padding-bottom:5px; text-decoration:none;display: none;">意见反馈</a>
+<script type="text/javascript">
+	if(window.location.href.indexOf("tmsf") >= 0 || window.location.href.indexOf("hzfc365") >= 0){
+		var _bdhmProtocol = (("https:" == document.location.protocol) ? "https://" : "http://");
+		document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fbbb8b9db5fbc7576fd868d7931c80ee1' type='text/javascript'%3E%3C/script%3E"));
+	}
+</script>
+		<script>
+		/*数据滚动*/
+		function AutoScroll(obj) {
+			$(obj).find("table:first").animate( {
+				marginTop : "-25px"
+			}, 500, function() {
+				$(this).css( {
+					marginTop : "0px"
+				}).find("tr:first").appendTo(this);
+			});
+		}
+		var _autoScroll;
+		$(document).ready(function() {
+			if ($('#s1 table tr').size() >= 3) {
+				_autoScroll = setInterval('AutoScroll("#s1")', 3000);
+				$('#s1 table tr').bind("mouseover", function() {
+					clearInterval(_autoScroll);
+				});
+				$('#s1 table tr').bind("mouseout", function() {
+					_autoScroll = setInterval('AutoScroll("#s1")', 3000);
+				});
+			}
+		});
+		
+	</script>
+	</body>
+</html>

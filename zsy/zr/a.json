@@ -1,0 +1,14 @@
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "isNewBind": 1,
+    "keeperPhone": "400 100 1111 - 161576",
+    "keeperPresent": "我是自如管家，服务上百位自如客并与他们成为朋友，选择自如选择我，您就选择了舒心选择了安心！",
+    "isBadEval": 0,
+    "keeperId": "60008216",
+    "addTimes": 1,
+    "headCorn": "http://pic.ziroom.com/steward_images/60008216.png",
+    "keeperName": "袁越"
+  }
+}
